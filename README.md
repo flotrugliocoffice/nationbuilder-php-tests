@@ -1,4 +1,4 @@
-# Sample exercies on NationBuilder Api
+# Sample exercises on NationBuilder Api
 
 Api used: 
 * People (list, create, update)
