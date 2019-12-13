@@ -259,17 +259,17 @@
                             </div>
                             <div class="form-group">
                                 <label for="exampleInputEmail1">Event start time</label>
-                                <input type="date" class="form-control" id="exampleInputEmail1"
+                                <input type="datetime-local" class="form-control" id="exampleInputEmail1"
                                        aria-describedby="emailHelp" name="start_time"
                                        placeholder="Enter event start time"
-                                       value="{{isset($event["start_time"])?$event["start_time"]:''}}">
+                                       value="{{isset($event["start_time"])?$auth->formatDate($event["start_time"],'Y-m-d\TH:i:s'):''}}">
 
                             </div>
                             <div class="form-group">
                                 <label for="exampleInputEmail1">Event end time</label>
-                                <input type="date" class="form-control" id="exampleInputEmail1"
+                                <input type="datetime-local" class="form-control" id="exampleInputEmail1"
                                        aria-describedby="emailHelp" name="end_time" placeholder="Enter event end time"
-                                       value="{{isset($event["end_time"])?$event["end_time"]:''}}">
+                                       value="{{isset($event["end_time"])?$auth->formatDate($event["end_time"],'Y-m-d\TH:i:s'):''}}">
 
                             </div>
 
@@ -360,7 +360,7 @@
                                             @foreach($contacts as $contact)
                                                 <div class="row">
                                                     <div class="alert alert-info" role="alert">
-                                                        Contact date <b>{{$contact["created_at"]}}</b><br/>
+                                                        Contact date <b>{{$auth->formatDate($contact["created_at"],"d M Y H:i:s")}}</b><br/>
                                                         Message:<br/>
                                                         <p style="display: block; background: #FFF; margin: 10px auto;">{{$contact["note"]}}</p>
 

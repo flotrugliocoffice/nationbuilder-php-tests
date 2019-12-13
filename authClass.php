@@ -6,6 +6,8 @@
  * Time: 23:27
  */
 
+use Carbon\Carbon;
+
 class authClass
 {
     const METHOD_GET = 'GET';
@@ -85,7 +87,7 @@ class authClass
         $url = self::BASEURL . "people/?limit=10";
         $response = $this->requestUrl(self::METHOD_GET, $url);
         if (is_array($response) && isset($response["results"])) {
-            return $response["results"];
+            return $this->normalizeArrayDates($response["results"]);
         }
         return $response;
     }
@@ -96,7 +98,7 @@ class authClass
         $url = self::BASEURL . "people/" . $id;
         $response = $this->requestUrl(self::METHOD_GET, $url);
         if (is_array($response) && isset($response["person"])) {
-            return $response["person"];
+            return $this->normalizeArrayDates([$response["person"]])[0];
         }
         return $response;
     }
@@ -105,19 +107,16 @@ class authClass
     {
         $url = self::BASEURL . "people/" . $id . "/contacts";
         $response = $this->requestUrl(self::METHOD_GET, $url);
-        var_dump($response);
         if (is_array($response) && isset($response["results"])) {
-            return $response["results"];
+            return $this->normalizeArrayDates($response["results"]);
         }
-        return $response;
+        return $this->normalizeArrayDates($response);
     }
 
     public function consumePersonAction($edit)
     {
-        $isNew = $_POST["action"] === 'edit' ? false : true;
         $_id = isset($_POST["_id"]) ? $_POST["_id"] : false;
         if (empty($_id)) {
-            $isNew = true;
             $_id = false;
         }
 
@@ -148,13 +147,11 @@ class authClass
 
     public function consumePersonContactAction($id, $action)
     {
-        $isNew = $action;
         if ($action === "listcontact") {
             return false;
         }
         $_id = isset($_POST["_id"]) ? $_POST["_id"] : false;
         if (empty($_id)) {
-            $isNew = true;
             $_id = false;
         }
 
@@ -174,10 +171,10 @@ class authClass
     public function getEvent($id)
     {
         //GET /sites/:site_slug/pages/events/:id
-        $url = self::BASEURL . "sites/cofficegroupdev/pages/events/" . $id;
+        $url = self::BASEURL . "sites/" . SITE_SLUG . "/pages/events/" . $id;
         $response = $this->requestUrl(self::METHOD_GET, $url);
         if (is_array($response) && isset($response["event"])) {
-            return $response["event"];
+            return $this->normalizeArrayDates([$response["event"]])[0];
         }
         return $response;
     }
@@ -197,9 +194,9 @@ class authClass
             "excerpt" => $_POST["excerpt"],
             "start_time" => $_POST["start_time"],
             "end_time" => $_POST["end_time"],
-            "status"=> "published"
+            "status" => "published"
         ];
-        $url = self::BASEURL . "sites/cofficegroupdev/pages/events/" . $_id;
+        $url = self::BASEURL . "sites/" . SITE_SLUG . "/pages/events/" . $_id;
         $method = self::METHOD_POST;
         if ($_id) {
             $method = self::METHOD_PUT;
@@ -223,6 +220,57 @@ class authClass
 
     private function __wakeup()
     {
+    }
+
+    private function normalizeArrayDates($array)
+    {
+        if (empty($array)) {
+            return [];
+        }
+        if (count($array) === 0) {
+            return [];
+        }
+        static $dateFields = ["start_time", "end_time", "start_date", "end_date", "created_at", "published_at", "updated_at"];
+        foreach ($array as &$item) {
+            if (is_array($item)) {
+                $item = $this->normalizeArrayItem($item, $dateFields);
+            } else if (is_object($item)) {
+                $item = $this->normalizeObjectItem($item, $dateFields);
+            }
+        }
+        return $array;
+
+    }
+
+    private function normalizeArrayItem($item, $datefields)
+    {
+        foreach ($item as $key => $value) {
+            if (in_array($key, $datefields)) {
+                $item[$key] = new Carbon($value);
+            }
+        }
+        return $item;
+    }
+
+    private function normalizeObjectItem($item, $datefields)
+    {
+        $extractProperties = get_object_vars($item);
+        foreach ($extractProperties as $key) {
+            if (in_array($key, $datefields)) {
+                $item->{$key} = new Carbon($item->{$key});
+            }
+        }
+        return $item;
+    }
+
+    public function formatDate($object, $format = "Y-m-d")
+    {
+        if (is_a($object, "Carbon\Carbon")) {
+            /* @var Carbon $object */
+            return $object->format($format);
+        }
+
+        return $object;
     }
 }
 

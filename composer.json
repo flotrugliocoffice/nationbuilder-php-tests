@@ -1,6 +1,7 @@
 {
     "require": {
         "league/oauth2-client": "^2.4",
-        "jenssegers/blade": "^1.2"
+        "jenssegers/blade": "^1.2",
+        "nesbot/carbon": "^1.39"
     }
 }

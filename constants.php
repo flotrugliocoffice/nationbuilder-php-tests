@@ -11,3 +11,7 @@ const REDIRECT_URI = 'https://nb.cofficegroup.net';
 const AUTHORIZATION_ENDPOINT = 'https://cofficegroupdev.nationbuilder.com//oauth/authorize';
 const TOKEN_ENDPOINT = 'https://cofficegroupdev.nationbuilder.com//oauth/token';
 const RESOURCE_ENDPOINT = 'https://cofficegroupdev.nationbuilder.com//oauth/resource';
+const SITE_SLUG = 'cofficegroupdev';
+if (!defined("SITE_SLUG")) {
+    define("SITE_SLUG", SITE_SLUG);
+}
